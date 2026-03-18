@@ -3,6 +3,7 @@ import Task from "../models/Task.js"
 
 export const getAllTasks = async (req, res) => {
     const {filter = "today"} = req.query;
+    const guestId = req.guestId;
     const now = new Date();
     let startDate;
 
@@ -27,7 +28,7 @@ export const getAllTasks = async (req, res) => {
             default : { startDate = null }
     }
 
-    const query = startDate ? {createdAt: {$gte: startDate}} : {};
+    const query = {guestId, ...(startDate ? {createdAt: {$gte: startDate}} : {}), };
 
     try {
         const result = await Task.aggregate([
@@ -41,7 +42,7 @@ export const getAllTasks = async (req, res) => {
             },
         ]);
 
-        const tasks = result[0].tasks;
+        const tasks = result[0]?.tasks || [];
         const activeCount = result[0].activeCount[0]?.count || 0;
         const completeCount = result[0].completeCount[0]?.count || 0;
 
@@ -56,7 +57,8 @@ export const getAllTasks = async (req, res) => {
 export const createTask = async (req, res) => {
     try {
         const {title} = req.body;
-        const task = new Task({title});
+        const guestId = req.guestId;
+        const task = new Task({title, guestId});
 
         const newTask = await task.save();
         res.status(201).json(newTask);
@@ -70,8 +72,9 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req, res) => {
     try {
         const {title, status, completedAt} = req.body;
+        const guestId = req.guestId;
         const updatedTask = await Task.findByIdAndUpdate(
-            req.params.id,
+            {_id: req.params.id, guestId},
             {
                 title,
                 status,
@@ -94,7 +97,11 @@ export const updateTask = async (req, res) => {
 
 export const deleteTask = async (req, res) => {
     try {
-        const deleteTask = await Task.findByIdAndDelete(req.params.id);
+        const guestId = req.guestId;
+        const deleteTask = await Task.findByIdAndDelete({
+            _id: req.params.id, 
+            guestId,
+        });
 
         if (!deleteTask) {
             return res.status(404).json({message: "Error! Your task is not exist"});

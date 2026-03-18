@@ -1,8 +1,11 @@
 import express from "express";
 import { getAllTasks, createTask, updateTask, deleteTask } from "../controllers/tasksControllers.js";
+import { requireGuestId } from "../middlewares/guestMiddleware.js";
 
 
 const router = express.Router();
+
+router.use(requireGuestId);
 
 router.get("/", getAllTasks);
 

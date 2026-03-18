@@ -6,6 +6,7 @@ import StatsAndFilters from '@/components/StatsAndFilters'
 import TaskList from '@/components/TaskList'
 import TaskListPagination from '@/components/TaskListPagination'
 import { useEffect, useState } from 'react'
+import { getGuestId } from '@/lib/guest'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
 import { visibleTaskLimit } from '@/lib/data'
@@ -16,6 +17,10 @@ const HomePage = () => {
   const [filter, setFilter] = useState("all");
   const [dateQuery, setDateQuery] = useState("today");
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    getGuestId();
+  }, []);
 
   useEffect(() => {
     fetchTask();

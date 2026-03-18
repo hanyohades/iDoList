@@ -19,6 +19,13 @@ const taskSchema = new mongoose.Schema(
             default: null,
         },
 
+        guestId: {
+            type: String,
+            required: true,
+            index: true,
+            trim: true,
+        },
+
     },
     {
         timestamps: true,

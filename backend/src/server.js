@@ -13,11 +13,16 @@ const __dirname = path.resolve();
 const app = express();
 
 //middlewares
-app.use(express.json());
+console.log(process.env.NODE_ENV);
 
 if (process.env.NODE_ENV !== "production") {
-    app.use(cors({origin: "http://localhost:5173"}));
+    app.use(cors({origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+                methods: ["GET", "POST", "PUT", "DELETE"],
+                allowedHeaders: ["Content-Type", "Authorization", "x-guest-id"],
+    }));
 }
+
+app.use(express.json());
 
 app.use("/api/tasks", taskRoute);
 
